@@ -1,0 +1,7 @@
+*.vscode
+*.out
+*.exe
+*.vs
+*.o
+
+node_modules
