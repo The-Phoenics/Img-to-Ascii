@@ -11,30 +11,38 @@ void greyscale_avg(std::uint8_t* r, std::uint8_t* g, std::uint8_t* b) {
     if (!r || !g || !b)
         std::cout << "Channel values pointers are invalid\n";
     std::uint8_t grey = (static_cast<unsigned int>(*r) + 
-                         static_cast<unsigned int>(*g) + 
-                         static_cast<unsigned int>(*b)) / 3;
+        static_cast<unsigned int>(*g) + static_cast<unsigned int>(*b)) / 3;
     *r = grey;
     *g = grey;
     *b = grey;
 }
 
+/*
+* this maps from a bigger range to a smaller range eg. from (0 -> 50) to (3 -> 7)
+*/
+int map_range_val_from(int fr_lower, int fr_upper, int to_lower, int to_upper, int value) {
+    if (fr_lower == fr_upper || to_lower == to_upper) {
+        return -1;
+    }
+    float scale = static_cast<float>(to_upper - to_lower) / (fr_upper - fr_lower);
+    int mapped_value = to_lower + static_cast<int>((value - fr_lower) * scale);
+    return mapped_value;
+}
+
 int main()
 {
-    // dark to light brightness depth value characters
     std::string drawing_chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'.";
-    std::cout << "drawing chars size: " << drawing_chars.size() << std::endl;
 
     const char* filename = "img/input.png";
-    int w, h, channels, req_comp = 0, data_size = 0; // image width, height, color channels(4 for rgba)
-    // what are all these values for?
 
-    // load
+    // image width, height, color channels(4 for rgba)
+    int w, h, channels, req_comp = 0, data_size = 0;
+
+    // load image
     std::uint8_t* data = stbi_load(filename, &w, &h, &channels, req_comp); // what is unsigned char*?
     if (data == NULL)
         std::cout << "Failed to load image: " << filename << std::endl;
     data_size = w * h * channels;
-
-    std::cout << w << " " << h << " " << channels << std::endl << data[0] << std::endl;
 
     // convert data to greyscale
     std::uint8_t *r, *g, *b;
@@ -58,16 +66,26 @@ int main()
         }
 
         // *value = *value - *value / 3; // decrease the color values
-        // *value = 255; // complete white image
         // std::cout << static_cast<unsigned int>(data[i]) << " "; // why cast needed?
     }
 
     // write processed data to a new image
-    int result = stbi_write_png("img/result.png", w, h, channels, data, 0); // what is stride?
+    const char* greyscale_output_file = "img/greyscale.png";
+    int result = stbi_write_png(greyscale_output_file, w, h, channels, data, 0); // what is stride?
     if (!result)
-        std::cout << "Failed to write image data into result.png\n";
+        std::cout << "Failed to write image data into" << greyscale_output_file << std::endl;
 
-    // free
+    // print ascii art
+    for (size_t r = 0; r < h; r++) { // r += 2 to reduce height
+        for (size_t c = 0; c < w * channels; c += channels) { // c += channels * 2 to reduce width
+            int val = data[w * channels * r + c];
+            int idx_val = map_range_val_from(0, 255, 0, drawing_chars.size() - 1, val);
+            char ch = drawing_chars.at(idx_val);
+            std::cout << ch;
+        }
+        std::cout << "\n";
+    }
+
     stbi_image_free(data);
 }
 
