@@ -24,7 +24,7 @@ int main()
     std::string drawing_chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'.";
     std::cout << "drawing chars size: " << drawing_chars.size() << std::endl;
 
-    const char* filename = "img/test_img.png";
+    const char* filename = "img/input.png";
     int w, h, channels, req_comp = 0, data_size = 0; // image width, height, color channels(4 for rgba)
     // what are all these values for?
 
@@ -63,7 +63,7 @@ int main()
     }
 
     // write processed data to a new image
-    int result = stbi_write_png("result.png", w, h, channels, data, 0); // what is stride?
+    int result = stbi_write_png("img/result.png", w, h, channels, data, 0); // what is stride?
     if (!result)
         std::cout << "Failed to write image data into result.png\n";
 
