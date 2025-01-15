@@ -1,27 +1,17 @@
-#include <ncurses.h>
-
+#include "render.hpp"
 
 void init()
 {
     initscr();
-    cbreak();             // Line buffering disabled, pass all input to the program
-    noecho();             // Don't echo typed characters
-    keypad(stdscr, TRUE); // Enable function and arrow keys
+    // cbreak();             // Line buffering disabled, pass all input to the program
+    // noecho();             // Don't echo typed characters
+    // keypad(stdscr, TRUE); // Enable function and arrow keys
     start_color(); 
 }
 
-void update()
+
+void draw_character(char ch, RGB color)
 {
-
-}
-
-void draw()
-{
-    if (!has_colors() || !can_change_color()) {
-        endwin();
-        printf("Your terminal does not support changing colors.\n");
-    }
-
     // Define custom RGB color (replace with your desired RGB values)
     short r = 500;          // Red (0-1000)
     short g = 300;          // Green (0-1000)
@@ -37,10 +27,21 @@ void draw()
 
     // Apply the color pair
     attron(COLOR_PAIR(pair_id));
-    mvprintw(5, 10, "Hello, colorful world!"); // Print a colored message
+    mvprintw(5, 10, std::string(1, ch).c_str());
     attroff(COLOR_PAIR(pair_id));
-
     refresh();
+
+}
+
+void render(std::string& text)
+{
+    if (!has_colors() || !can_change_color()) {
+        endwin();
+        printf("Your terminal does not support changing colors.\n");
+    }
+
+    draw_character('a', RGB(200, 100, 206));
+
 }
 
 int main()
