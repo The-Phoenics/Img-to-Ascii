@@ -1,9 +1,10 @@
+cmake_minimum_required(VERSION 3.16)
+project(app LANGUAGES CXX)
 
-cmake_minimum_required(VERSION 3.14)
-project(app VERSION)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-g -O3")
 
 include(FetchContent)
-
 # Fetch ncurses
 FetchContent_Declare(
   ncurses

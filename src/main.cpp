@@ -19,7 +19,7 @@ int main()
     std::string drawing_chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'.";
 
     // Input image file path
-    const char* filename = "img/input2.jpg";
+    const char* filename = "img/test.jpg";
 
     // Load image
     int w, h, channels;
@@ -28,6 +28,8 @@ int main()
         std::cerr << "Failed to load image: " << filename << std::endl;
         return 1;
     }
+
+
 
     const int rows = h;
     const int columns = w;
@@ -100,8 +102,7 @@ int main()
     stbi_image_free(data);
 
     init();
-    draw_character('c', 4, 4, RGB(200, 44, 44));
-    // render(img_ascii_values);
-    getch();
-    endwin();
+    render(img_ascii_values, img_color_values);
+    // getch();
+    // endwin();
 }

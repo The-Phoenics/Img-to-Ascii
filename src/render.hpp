@@ -8,4 +8,4 @@
 
 void init();
 void draw_character(char ch, size_t posx, size_t posy, RGB color);
-void render(std::vector<std::string>& text);
+void render(std::vector<std::string>& text, std::vector<std::vector<RGB>>& colors);
