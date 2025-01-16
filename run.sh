@@ -1,3 +1,5 @@
-clear
-g++ -g main.cpp
-./a.out
+
+rm ./build/app
+cmake -S . -B build
+cmake --build build
+./build/app

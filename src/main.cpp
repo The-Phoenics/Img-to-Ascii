@@ -1,13 +1,14 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <ncurses.h>
 #include <string>
 #include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "./libs/stb_image.h"
-#include "./libs/stb_image_write.h"
+#include "stb/stb_image.h"
+#include "stb/stb_image_write.h"
 
 #include "render.hpp"
 #include "utils.hpp"
@@ -30,7 +31,8 @@ int main()
 
     const int rows = h;
     const int columns = w;
-    std::vector<std::vector<std::uint8_t>> grayscale_pixel_array(rows, std::vector<std::uint8_t>(columns));
+    std::vector<std::vector<std::uint8_t>> img_grayscale_values(rows, std::vector<std::uint8_t>(columns)); // stores grayscale values of each pixel
+    std::vector<std::vector<RGB>> img_color_values(rows); // stores all color values of each pixel
 
     /*
      * Process the image data. Since the image is in RGBA format,
@@ -38,34 +40,35 @@ int main()
      * the grayscale value for each pixel.
      */
     for (int i = 0; i < w * h * channels; i += channels) {
-        int row = (i / channels) / columns;  // Calculate the row index
-        int col = (i / channels) % columns;  // Calculate the column index
+        int row = (i / channels) / columns;
+        int col = (i / channels) % columns;
 
         // Extract RGB values from the data
-        std::uint8_t r = data[i];
-        std::uint8_t g = data[i + 1];
-        std::uint8_t b = data[i + 2];
+        std::uint8_t red   = data[i];
+        std::uint8_t green = data[i + 1];
+        std::uint8_t blue  = data[i + 2];
 
-        // Calculate and store the grayscale value in the array
-        grayscale_pixel_array[row][col] = RGB::grayscale_avg(r, g, b);
+        img_color_values[row].push_back(RGB(red, green, blue));
+
+        img_grayscale_values[row][col] = RGB::grayscale_avg(red, green, blue);
     }
 
     /*
      * Convert the grayscale pixel array into ASCII art.
      * Each pixel's grayscale value is mapped to a character from the `drawing_chars` string.
      */
-    std::vector<std::string> ascii_result(rows);
+    std::vector<std::string> img_ascii_values(rows);
     for (int r = 0; r < rows; ++r) {
-        std::string ascii_text_row;
+        std::string row_values;
         for (int c = 0; c < columns; ++c) {
-            int grayscale_value = grayscale_pixel_array[r][c];  // Get grayscale value
+            int grayscale_value = img_grayscale_values[r][c];  // Get grayscale value
             int idx_val = map_range_val_from(0, 255, 0, drawing_chars.size() - 1, grayscale_value);  // Map grayscale to character
-            ascii_text_row.push_back(drawing_chars.at(idx_val));  // Add character to the row
+            row_values.push_back(drawing_chars.at(idx_val));  // Add character to the row
         }
-        ascii_result[r] = ascii_text_row;
+        img_ascii_values[r] = row_values;
 
-        // Print ascii result to a output file
-        std::cout << ascii_text_row << '\n';
+        // Print ascii result to console
+        // std::cout << row_values << '\n';
     }
 
     // Write ascii result to a output file
@@ -75,7 +78,7 @@ int main()
         return 1;
     }
 
-    for (const std::string& s : ascii_result) {
+    for (const std::string& s : img_ascii_values) {
         out << s << '\n';
     }
     out.close();
@@ -84,7 +87,7 @@ int main()
     std::vector<std::uint8_t> output_data(w * h);
     for (int i = 0; i < h; ++i) {
         for (int j = 0; j < w; ++j) {
-            output_data[i * w + j] = grayscale_pixel_array[i][j];
+            output_data[i * w + j] = img_grayscale_values[i][j];
         }
     }
     
@@ -95,4 +98,10 @@ int main()
     }
 
     stbi_image_free(data);
+
+    init();
+    draw_character('c', 4, 4, RGB(200, 44, 44));
+    // render(img_ascii_values);
+    getch();
+    endwin();
 }
